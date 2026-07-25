@@ -9,7 +9,7 @@ using InventoryApi.Models;
 
 namespace InventoryApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/products")]
     [ApiController]
     public class ProductsController : ControllerBase
     {
