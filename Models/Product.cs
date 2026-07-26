@@ -14,25 +14,25 @@ public class Product
     // [Required]
     [DataType(DataType.Currency)]
     [Column(TypeName = "decimal(18, 2)")]
-    public decimal Price { get; set; }
-    public string? Description { get; set; }
+    public decimal Price { get; set; } = 0;
+    public string? Description { get; set; } = null;
 
     // [Required]
     [DataType(DataType.DateTime)]
-    public DateTime IntakeDate { get; set; }
+    public DateTime IntakeDate { get; set; } = DateTime.Now;
 
     // [Required]
-    public int Quantity { get; set; }
+    public int Quantity { get; set; } = 0;
 
     // [Required]
-    public string? Status { get; set; }
-    public int CategoryId { get; set; }
-    public int VendorId { get; set; }
-    public string? StorageLocation { get; set; }
-    public string? ShipmentStatus { get; set; }
-    public string? Notes { get; set; }
+    public string? Status { get; set; } = null;
+    public int? CategoryId { get; set; } = null;
+    public int? VendorId { get; set; } = null;
+    public string? StorageLocation { get; set; } = null;
+    public string? ShipmentStatus { get; set; } = null;
+    public string? Notes { get; set; } = null;
 
-    public string UserId { get; set; } = string.Empty;
+    public string? UserId { get; set; } = null;
 
     [ForeignKey(nameof(UserId))]
     public UserIdentity? UserIdentity { get; set; }

@@ -17,11 +17,20 @@ public class ApplicationDbContext : IdentityDbContext<UserIdentity>
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+        SeedRoles(builder);
 
         builder.Entity<Product>()
             .HasOne(p => p.UserIdentity)
             .WithMany(u => u.Products)
             .HasForeignKey(p => p.UserId)
             .OnDelete(DeleteBehavior.Cascade);
+    }
+
+    private void SeedRoles(ModelBuilder builder)
+    {
+        builder.Entity<IdentityRole>().HasData(
+            new IdentityRole() { Name = "Admin", ConcurrencyStamp = "1", NormalizedName = "Admin" },
+            new IdentityRole() { Name = "Vendor", ConcurrencyStamp = "2", NormalizedName = "Vendor" }
+        );
     }
 }

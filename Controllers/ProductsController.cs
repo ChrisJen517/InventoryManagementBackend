@@ -7,9 +7,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using InventoryApi.Models;
+using InventoryApi.Areas.Identity.Data;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace InventoryApi.Controllers
 {
+    [Authorize]
     [Route("api/products")]
     [ApiController]
     public class ProductsController : ControllerBase
@@ -25,7 +29,17 @@ namespace InventoryApi.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
         {
-            return await _context.Products.ToListAsync();
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (User.IsInRole("Admin"))
+            {
+                return await _context.Products
+                    .ToListAsync();
+            }
+
+            return await _context.Products
+                .Where(product => product.UserId == userId)
+                .ToListAsync();
         }
 
         // GET: api/Products/5

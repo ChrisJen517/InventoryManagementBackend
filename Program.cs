@@ -44,6 +44,10 @@ builder.Services.AddIdentityApiEndpoints<UserIdentity>()
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
+builder.Services.AddIdentityCore<UserIdentity>()
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>();
+
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
