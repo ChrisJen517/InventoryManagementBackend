@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,9 +14,9 @@ namespace InventoryApi.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        private readonly ProductContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public ProductsController(ProductContext context)
+        public ProductsController(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -77,6 +78,10 @@ namespace InventoryApi.Controllers
         [HttpPost]
         public async Task<ActionResult<Product>> PostProduct(Product product)
         {
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            product.UserId = userId;
+
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
 

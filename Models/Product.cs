@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using InventoryApi.Areas.Identity.Data;
 
 namespace InventoryApi.Models;
 
@@ -30,4 +31,9 @@ public class Product
     public string? StorageLocation { get; set; }
     public string? ShipmentStatus { get; set; }
     public string? Notes { get; set; }
+
+    public string UserId { get; set; } = string.Empty;
+
+    [ForeignKey(nameof(UserId))]
+    public UserIdentity? UserIdentity { get; set; }
 }

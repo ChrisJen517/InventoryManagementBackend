@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using InventoryApi.Models;
+using InventoryApi.Areas.Identity.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
 var MyAllowSpecificOrigins = "_MyAllowSpecificOrigins";
@@ -31,14 +32,18 @@ builder.Services.AddCors(options =>
                       });
 });
 
-builder.Services.AddDbContext<ApplicationDbContext>(
-    options => options.UseInMemoryDatabase("AppDb"));
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
 
 builder.Services.AddAuthorization();
 
-builder.Services.AddIdentityApiEndpoints<IdentityUser>()
+builder.Services.AddIdentityApiEndpoints<UserIdentity>()
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
+
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
@@ -60,8 +65,6 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
-builder.Services.AddDbContext<ProductContext>(opt =>
-    opt.UseInMemoryDatabase("ProductList"));
 
 var app = builder.Build();
 
@@ -75,7 +78,7 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-app.MapIdentityApi<IdentityUser>();
+app.MapIdentityApi<UserIdentity>();
 
 app.UseHttpsRedirection();
 
