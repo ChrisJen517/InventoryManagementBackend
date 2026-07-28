@@ -26,27 +26,9 @@ builder.Services.AddCors(options =>
                       });
 });
 
-string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-if (!builder.Environment.IsDevelopment())
-{
-    var connectionStringsSection = builder.Configuration.GetSection("ConnectionStrings");
-    foreach (var connString in connectionStringsSection.GetChildren())
-    {
-        // connectionString.Key is the name, connectionString.Value is the actual connection string
-        Console.WriteLine($"Key: {connString.Key}");
-        Console.WriteLine($"Value: {connString.Value}");
-        Console.WriteLine("-----------------------------------");
-    }
-    // connectionString = builder.Configuration.GetConnectionString("MyDbConnection");
-    // if (string.IsNullOrEmpty(connectionString))
-    // {
-    //     connectionString = Environment.GetEnvironmentVariable("MYSQLCONNSTR_MyDbConnection"); ;
-    //     if (string.IsNullOrEmpty(connectionString))
-    //     {
-    //         throw new InvalidOperationException("Connection string 'AZURE_MYSQL_CONNECTIONSTRING' not found.");
-    //     }
-    // }
-}
+string? connectionString = builder.Environment.IsDevelopment() ?
+    builder.Configuration.GetConnectionString("DefaultConnection")
+    : builder.Configuration.GetConnectionString("AZURE_MYSQL_CONNECTIONSTRING");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
