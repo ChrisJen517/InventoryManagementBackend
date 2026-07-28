@@ -14,58 +14,57 @@ using Microsoft.AspNetCore.Identity;
 namespace InventoryApi.Controllers
 {
     [Authorize]
-    [Route("api/vendors")]
+    [Route("api/locations")]
     [ApiController]
-    public class VendorsController : ControllerBase
+    public class LocationsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
 
-        public VendorsController(ApplicationDbContext context)
+        public LocationsController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: api/Vendors
-        [Authorize(Roles = "Admin")]
+        // GET: api/Locations
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Vendor>>> GetVendors([FromQuery] string? search)
+        public async Task<ActionResult<IEnumerable<Location>>> GetLocations([FromQuery] string? search)
         {
-            var filteredVendors = _context.Vendors.AsQueryable();
+            var filteredLocations = _context.Locations.AsQueryable();
 
             if (!string.IsNullOrEmpty(search))
             {
                 string cleanSearch = search.Trim().ToLower();
-                filteredVendors = filteredVendors.Where(v => v.Name.ToLower().Contains(cleanSearch));
+                filteredLocations = filteredLocations.Where(v => v.Name.ToLower().Contains(cleanSearch));
             }
 
-            return await filteredVendors.ToListAsync();
+            return await filteredLocations.ToListAsync();
         }
 
-        // GET: api/Vendors/5
+        // GET: api/Locations/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Vendor>> GetVendor(int id)
+        public async Task<ActionResult<Location>> GetLocation(int id)
         {
-            var vendor = await _context.Vendors.FindAsync(id);
+            var location = await _context.Locations.FindAsync(id);
 
-            if (vendor == null)
+            if (location == null)
             {
                 return NotFound();
             }
 
-            return vendor;
+            return location;
         }
 
-        // PUT: api/Vendors/5
+        // PUT: api/Locations/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<ActionResult<Vendor>> PutVendor(int id, Vendor vendor)
+        public async Task<IActionResult> PutLocation(int id, Location location)
         {
-            if (id != vendor.Id)
+            if (id != location.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(vendor).State = EntityState.Modified;
+            _context.Entry(location).State = EntityState.Modified;
 
             try
             {
@@ -73,7 +72,7 @@ namespace InventoryApi.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!VendorExists(id))
+                if (!LocationExists(id))
                 {
                     return NotFound();
                 }
@@ -86,36 +85,36 @@ namespace InventoryApi.Controllers
             return NoContent();
         }
 
-        // POST: api/Vendors
+        // POST: api/Locations
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Vendor>> PostVendor(Vendor vendor)
+        public async Task<ActionResult<Location>> PostLocation(Location location)
         {
-            _context.Vendors.Add(vendor);
+            _context.Locations.Add(location);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetVendor), new { id = vendor.Id }, vendor);
+            return CreatedAtAction(nameof(GetLocation), new { id = location.Id }, location);
         }
 
-        // DELETE: api/Vendors/5
+        // DELETE: api/Locations/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteVendor(int id)
+        public async Task<IActionResult> DeleteLocation(int id)
         {
-            var vendor = await _context.Vendors.FindAsync(id);
-            if (vendor == null)
+            var location = await _context.Locations.FindAsync(id);
+            if (location == null)
             {
                 return NotFound();
             }
 
-            _context.Vendors.Remove(vendor);
+            _context.Locations.Remove(location);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool VendorExists(int id)
+        private bool LocationExists(int id)
         {
-            return _context.Vendors.Any(e => e.Id == id);
+            return _context.Locations.Any(e => e.Id == id);
         }
     }
 }

@@ -14,6 +14,7 @@ public class Vendor
 
     public ICollection<Product> Products { get; set; } = new List<Product>();
     public ICollection<Category> Categories { get; set; } = new List<Category>();
+    public ICollection<Location> Locations { get; set; } = new List<Location>();
     public ICollection<UserIdentity> UserIdentities { get; set; } = new List<UserIdentity>();
 
 }

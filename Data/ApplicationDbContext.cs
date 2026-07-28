@@ -41,6 +41,13 @@ public class ApplicationDbContext : IdentityDbContext<UserIdentity>
             .HasForeignKey(p => p.VendorId)
             .OnDelete(DeleteBehavior.SetNull);
 
+        builder.Entity<Location>()
+            .HasOne(v => v.Vendor)
+            .WithMany(l => l.Locations)
+            .HasForeignKey(v => v.VendorId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+
 
         builder.Entity<UserIdentity>()
             .HasOne(u => u.Vendor)
