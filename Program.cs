@@ -29,7 +29,7 @@ builder.Services.AddCors(options =>
 string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 if (!builder.Environment.IsDevelopment())
 {
-    connectionString = builder.Configuration.GetConnectionString("AZURE_MYSQL_CONNECTIONSTRING");
+    connectionString = builder.Configuration.GetConnectionString("MyDbConnection");
     if (string.IsNullOrEmpty(connectionString))
     {
         throw new InvalidOperationException("Connection string 'AZURE_MYSQL_CONNECTIONSTRING' not found.");
