@@ -29,7 +29,15 @@ namespace InventoryApi.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Location>>> GetLocations([FromQuery] string? search)
         {
+            string? vendorIdClaim = User.FindFirstValue("VendorId");
+            int? vendorId = int.TryParse(vendorIdClaim, out var id) ? id : 0;
+
             var filteredLocations = _context.Locations.AsQueryable();
+
+            if (!User.IsInRole("Admin"))
+            {
+                filteredLocations = filteredLocations.Where(c => c.VendorId == vendorId);
+            }
 
             if (!string.IsNullOrEmpty(search))
             {
