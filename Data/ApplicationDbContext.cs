@@ -21,7 +21,7 @@ public class ApplicationDbContext : IdentityDbContext<UserIdentity>
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
-        SeedRoles(builder);
+        // SeedRoles(builder);
 
         builder.Entity<Product>()
             .HasOne(p => p.Vendor)
@@ -39,7 +39,7 @@ public class ApplicationDbContext : IdentityDbContext<UserIdentity>
             .HasOne(p => p.Vendor)
             .WithMany(u => u.Categories)
             .HasForeignKey(p => p.VendorId)
-            .OnDelete(DeleteBehavior.SetNull);
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.Entity<Location>()
             .HasOne(v => v.Vendor)
@@ -47,7 +47,11 @@ public class ApplicationDbContext : IdentityDbContext<UserIdentity>
             .HasForeignKey(v => v.VendorId)
             .OnDelete(DeleteBehavior.Cascade);
 
-
+        builder.Entity<Shipment>()
+            .HasOne(v => v.Product)
+            .WithMany(l => l.Shipments)
+            .HasForeignKey(v => v.ProductId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.Entity<UserIdentity>()
             .HasOne(u => u.Vendor)

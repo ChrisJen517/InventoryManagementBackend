@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace InventoryApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260728071454_ModelColumnsUpdate")]
+    partial class ModelColumnsUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -217,22 +220,10 @@ namespace InventoryApi.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Address")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("City")
-                        .HasColumnType("longtext");
-
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
-                    b.Property<string>("State")
-                        .HasColumnType("longtext");
-
                     b.Property<string>("TrackingCode")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Zip")
                         .HasColumnType("longtext");
 
                     b.HasKey("Id");
@@ -283,6 +274,22 @@ namespace InventoryApi.Migrations
                         .HasDatabaseName("RoleNameIndex");
 
                     b.ToTable("AspNetRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "77c5515f-f26b-46cf-9d81-5f432d960517",
+                            ConcurrencyStamp = "1",
+                            Name = "Admin",
+                            NormalizedName = "Admin"
+                        },
+                        new
+                        {
+                            Id = "b0d26eb7-8a9c-443c-9192-a276176ad3e5",
+                            ConcurrencyStamp = "2",
+                            Name = "Vendor",
+                            NormalizedName = "Vendor"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -447,7 +454,7 @@ namespace InventoryApi.Migrations
             modelBuilder.Entity("InventoryApi.Models.Shipment", b =>
                 {
                     b.HasOne("InventoryApi.Models.Product", "Product")
-                        .WithMany("Shipments")
+                        .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -509,11 +516,6 @@ namespace InventoryApi.Migrations
             modelBuilder.Entity("InventoryApi.Models.Category", b =>
                 {
                     b.Navigation("Products");
-                });
-
-            modelBuilder.Entity("InventoryApi.Models.Product", b =>
-                {
-                    b.Navigation("Shipments");
                 });
 
             modelBuilder.Entity("InventoryApi.Models.Vendor", b =>

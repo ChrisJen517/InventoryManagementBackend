@@ -10,6 +10,7 @@ using InventoryApi.Models;
 using InventoryApi.Areas.Identity.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using System.Text.Json;
 
 namespace InventoryApi.Controllers
 {
@@ -65,7 +66,8 @@ namespace InventoryApi.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Product>> GetProduct(int id)
         {
-            var product = await _context.Products.FindAsync(id);
+            // var product = await _context.Products.FindAsync(id);
+            var product = await _context.Products.Include(p => p.Shipments).FirstOrDefaultAsync(p => p.Id == id);
 
             if (product == null)
             {
@@ -88,13 +90,15 @@ namespace InventoryApi.Controllers
                 return NotFound();
             }
 
-            product.Title = productdto.Title;
-            product.Sku = productdto.Sku;
-            product.CategoryId = productdto.CategoryId;
+            product.Title = string.IsNullOrEmpty(productdto.Title) ? null : productdto.Title;
+            product.Sku = string.IsNullOrEmpty(productdto.Sku) ? null : productdto.Sku;
+            product.CategoryId = productdto.CategoryId.HasValue ? productdto.CategoryId : null;
             product.Price = productdto.Price;
             product.Quantity = productdto.Quantity;
-            product.Description = productdto.Description;
-            product.Notes = productdto.Notes;
+            product.Description = string.IsNullOrEmpty(productdto.Description) ? null : productdto.Description;
+            product.Notes = string.IsNullOrEmpty(productdto.Notes) ? null : productdto.Notes;
+            product.IntakeDate = productdto.IntakeDate;
+            product.LocationId = productdto.LocationId.HasValue ? productdto.LocationId : null;
 
             try
             {
@@ -111,6 +115,49 @@ namespace InventoryApi.Controllers
                     throw;
                 }
             }
+
+            return NoContent();
+        }
+
+        [HttpPut("assign-shipments/{id}")]
+        public async Task<IActionResult> AssignShipments(int id, [FromBody] List<Shipment> shipments)
+        {
+            var product = await _context.Products.Include(p => p.Shipments).FirstOrDefaultAsync(p => p.Id == id);
+
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            var incomingIds = shipments.Select(c => c.Id).ToList();
+            var toRemove = product.Shipments.Where(c => !incomingIds.Contains(c.Id)).ToList();
+            _context.Shipments.RemoveRange(toRemove);
+
+            foreach (var shipment in shipments)
+            {
+                var child = product.Shipments.FirstOrDefault(c => c.Id == shipment.Id && shipment.Id != 0);
+                if (child == null)
+                {
+                    product.Shipments.Add(new Shipment
+                    {
+                        TrackingCode = shipment.TrackingCode,
+                        Address = shipment.Address,
+                        City = shipment.City,
+                        State = shipment.State,
+                        Zip = shipment.Zip,
+                    });
+                }
+                else
+                {
+                    child.TrackingCode = shipment.TrackingCode;
+                    child.Address = shipment.Address;
+                    child.City = shipment.City;
+                    child.State = shipment.State;
+                    child.Zip = shipment.Zip;
+                }
+            }
+
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }

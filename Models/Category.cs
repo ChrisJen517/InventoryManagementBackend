@@ -12,12 +12,13 @@ public class Category
     [Required]
     public string? Name { get; set; }
     public string? Notes { get; set; }
-    public int? VendorId { get; set; }
+    public int? VendorId { get; set; } = null;
 
     [ForeignKey(nameof(VendorId))]
-    public Vendor? Vendor { get; set; }
+    public Vendor? Vendor { get; set; } = null;
 
 
     [JsonIgnore]
     public ICollection<Product> Products { get; set; } = new List<Product>();
+
 }

@@ -20,8 +20,8 @@ public class Product
     public string? Description { get; set; } = null;
 
     // [Required]
-    [DataType(DataType.DateTime)]
-    public DateTime IntakeDate { get; set; } = DateTime.Now;
+    [DataType(DataType.Date)]
+    public DateOnly IntakeDate { get; set; } = DateOnly.FromDateTime(DateTime.Now);
 
     // [Required]
     public int Quantity { get; set; } = 0;
@@ -35,12 +35,17 @@ public class Product
 
     public int? VendorId { get; set; } = null;
 
+
     [ForeignKey(nameof(VendorId))]
-    public Vendor? Vendor { get; set; }
+    public Vendor? Vendor { get; set; } = null;
 
     [ForeignKey(nameof(CategoryId))]
     public Category? Category { get; set; } = null;
 
     [ForeignKey(nameof(LocationId))]
     public Location? Location { get; set; } = null;
+
+
+    // [JsonIgnore]
+    public ICollection<Shipment> Shipments { get; set; } = new List<Shipment>();
 }

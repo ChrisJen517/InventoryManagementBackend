@@ -13,7 +13,6 @@ public class Vendor
     public string? Name { get; set; }
 
     [JsonIgnore]
-
     public ICollection<Product> Products { get; set; } = new List<Product>();
     [JsonIgnore]
     public ICollection<Category> Categories { get; set; } = new List<Category>();
@@ -21,5 +20,6 @@ public class Vendor
     public ICollection<Location> Locations { get; set; } = new List<Location>();
     [JsonIgnore]
     public ICollection<UserIdentity> UserIdentities { get; set; } = new List<UserIdentity>();
+
 
 }

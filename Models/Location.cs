@@ -13,8 +13,9 @@ public class Location
     public string? State { get; set; }
     public string? Zip { get; set; }
     public string? Notes { get; set; }
-    public int? VendorId { get; set; }
+    public int? VendorId { get; set; } = null;
 
     [ForeignKey(nameof(VendorId))]
-    public Vendor? Vendor { get; set; }
+    public Vendor? Vendor { get; set; } = null;
+
 }
