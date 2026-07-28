@@ -11,13 +11,6 @@ var MyAllowSpecificOrigins = "_MyAllowSpecificOrigins";
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
-// builder.Services.AddAuthentication()
-//   .AddJwtBearer()
-//   .AddJwtBearer("LocalAuthIssuer");
-
-
 
 builder.Services.AddCors(options =>
 {
@@ -33,7 +26,15 @@ builder.Services.AddCors(options =>
                       });
 });
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+if (!builder.Environment.IsDevelopment())
+{
+    connectionString = builder.Configuration["AZURE_MYSQL_CONNECTIONSTRING"];
+    if (string.IsNullOrEmpty(connectionString))
+    {
+        throw new InvalidOperationException("Connection string 'AZURE_MYSQL_CONNECTIONSTRING' not found.");
+    }
+}
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
@@ -56,9 +57,6 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.Cookie.HttpOnly = false; // Prevent JavaScript access
     options.Cookie.SameSite = SameSiteMode.None;
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Force HTTPS
-
-    // options.ExpireTimeSpan = TimeSpan.FromMinutes(20); // Cookie validity lifetime
-    // options.SlidingExpiration = true; // Refresh lifetime on active requests
 
     // Override default MVC redirect behavior for API contexts (Return 401 instead of redirecting to a login page)
     options.Events.OnRedirectToLogin = context =>
