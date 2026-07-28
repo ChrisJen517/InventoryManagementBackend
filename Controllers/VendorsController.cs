@@ -26,16 +26,19 @@ namespace InventoryApi.Controllers
         }
 
         // GET: api/Vendors
+        [Authorize(Roles = "Admin")]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Vendor>>> GetVendors()
+        public async Task<ActionResult<IEnumerable<Vendor>>> GetVendors([FromQuery] string? search)
         {
-            if (User.IsInRole("Admin"))
+            var filteredVendors = _context.Vendors.AsQueryable();
+
+            if (!string.IsNullOrEmpty(search))
             {
-                return await _context.Vendors
-                    .ToListAsync();
+                string cleanSearch = search.Trim().ToLower();
+                filteredVendors = filteredVendors.Where(v => v.Name.ToLower().Contains(cleanSearch));
             }
 
-            return NotFound();
+            return await filteredVendors.ToListAsync();
         }
 
         // GET: api/Vendors/5

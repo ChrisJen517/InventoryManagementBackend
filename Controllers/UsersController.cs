@@ -5,14 +5,92 @@ using Microsoft.AspNetCore.Identity;
 using InventoryApi.Areas.Identity.Data;
 using InventoryApi.Models;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 
 namespace InventoryApi.Controllers
 {
     [ApiController]
-    [Route("api/user")]
+    [Route("api/users")]
     [Authorize] // Enforces that the request must be authenticated
-    public class UserController : ControllerBase
+    public class UsersController : ControllerBase
     {
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<UserIdentity>>> GetUsers([FromQuery] string? search)
+        {
+
+            var filteredUsers = _userManager.Users.AsQueryable();
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                string cleanSearch = search.Trim().ToLower();
+                filteredUsers = filteredUsers.Where(u => u.Name.ToLower().Contains(cleanSearch) ||
+                                                                u.Email.ToLower().Contains(cleanSearch));
+            }
+            return await filteredUsers.ToListAsync();
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<UserIdentity>> GetUser(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return user;
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateInfoAsync(string id, UserIdentity userdto)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null) return NotFound();
+
+            if (string.IsNullOrWhiteSpace(userdto.Email))
+            {
+                return BadRequest("Email cannot be empty.");
+            }
+
+            var emailUpdated = false;
+            if (userdto.Email != user.Email)
+            {
+                var setEmailResult = await _userManager.SetEmailAsync(user, userdto.Email);
+                if (!setEmailResult.Succeeded)
+                {
+                    return BadRequest(setEmailResult.Errors);
+                }
+
+                await _userManager.SetUserNameAsync(user, userdto.Email);
+                emailUpdated = true;
+            }
+
+            if (emailUpdated)
+            {
+                user = await _userManager.FindByIdAsync(id);
+            }
+            if (!string.IsNullOrWhiteSpace(userdto.Name))
+            {
+                user.Name = userdto.Name;
+            }
+            if (userdto.VendorId.HasValue)
+            {
+                user.VendorId = userdto.VendorId;
+            }
+
+            IdentityResult result = await _userManager.UpdateAsync(user);
+
+            if (!result.Succeeded)
+            {
+                return BadRequest("Could not update user.");
+            }
+
+            return Ok("Profile updated.");
+        }
+
         [HttpGet("user-info")]
         public IActionResult GetCurrentUser()
         {
@@ -20,6 +98,7 @@ namespace InventoryApi.Controllers
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var username = User.Identity?.Name;
             var email = User.FindFirst(ClaimTypes.Email)?.Value;
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
 
             if (userId == null)
             {
@@ -30,14 +109,15 @@ namespace InventoryApi.Controllers
             {
                 Id = userId,
                 Username = username,
-                Email = email
+                Email = email,
+                Role = role
             });
         }
 
         private readonly UserManager<UserIdentity> _userManager;
         private readonly ApplicationDbContext _context;
 
-        public UserController(UserManager<UserIdentity> userManager, ApplicationDbContext context)
+        public UsersController(UserManager<UserIdentity> userManager, ApplicationDbContext context)
         {
             _userManager = userManager;
             _context = context;
