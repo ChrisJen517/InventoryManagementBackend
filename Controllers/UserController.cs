@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using InventoryApi.Areas.Identity.Data;
+using InventoryApi.Models;
+using System.Text.Json;
 
 namespace InventoryApi.Controllers
 {
@@ -33,12 +35,15 @@ namespace InventoryApi.Controllers
         }
 
         private readonly UserManager<UserIdentity> _userManager;
+        private readonly ApplicationDbContext _context;
 
-        public UserController(UserManager<UserIdentity> userManager)
+        public UserController(UserManager<UserIdentity> userManager, ApplicationDbContext context)
         {
             _userManager = userManager;
+            _context = context;
         }
 
+        [Authorize]
         [HttpPost("assign-admin")]
         public async Task<IActionResult> AssignAdminRole(string userId)
         {
@@ -60,6 +65,46 @@ namespace InventoryApi.Controllers
 
             // Handle failure (e.g., role doesn't exist)
             return BadRequest(result.Errors);
+        }
+
+
+
+        [Authorize]
+        [HttpPost("assign-vendor")]
+        public async Task<IActionResult> AssignVendor(string id, int vendorId)
+        {
+
+            if (User.IsInRole("Admin"))
+            {
+                return NoContent();
+            }
+
+            // Find the user by ID
+            var user = await _userManager.FindByIdAsync(id);
+
+            if (user == null)
+            {
+                return NotFound("No User Found");
+            }
+
+
+            var existingVendor = await _context.Vendors.FindAsync(vendorId);
+
+            if (existingVendor == null)
+            {
+                return NotFound("Vendor not found.");
+            }
+
+            user.VendorId = vendorId;
+
+            IdentityResult result = await _userManager.UpdateAsync(user);
+
+            if (result.Succeeded)
+            {
+                return Ok("Vendor assigned successfully.");
+            }
+
+            return NoContent();
         }
     }
 }

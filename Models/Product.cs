@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using InventoryApi.Areas.Identity.Data;
+using System.Text.Json.Serialization;
 
 namespace InventoryApi.Models;
 
@@ -10,6 +11,7 @@ public class Product
 
     // [Required]
     public string? Title { get; set; }
+    public string? Sku { get; set; }
 
     // [Required]
     [DataType(DataType.Currency)]
@@ -27,13 +29,18 @@ public class Product
     // [Required]
     public string? Status { get; set; } = null;
     public int? CategoryId { get; set; } = null;
-    public int? VendorId { get; set; } = null;
-    public string? StorageLocation { get; set; } = null;
+    public int? LocationId { get; set; } = null;
     public string? ShipmentStatus { get; set; } = null;
     public string? Notes { get; set; } = null;
 
-    public string? UserId { get; set; } = null;
+    public int? VendorId { get; set; } = null;
 
-    [ForeignKey(nameof(UserId))]
-    public UserIdentity? UserIdentity { get; set; }
+    [ForeignKey(nameof(VendorId))]
+    public Vendor? Vendor { get; set; }
+
+    [ForeignKey(nameof(CategoryId))]
+    public Category? Category { get; set; } = null;
+
+    [ForeignKey(nameof(LocationId))]
+    public Location? Location { get; set; } = null;
 }

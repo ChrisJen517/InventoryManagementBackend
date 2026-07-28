@@ -11,6 +11,10 @@ public class ApplicationDbContext : IdentityDbContext<UserIdentity>
     { }
 
     public DbSet<Product> Products { get; set; }
+    public DbSet<Category> Categories { get; set; }
+    public DbSet<Location> Locations { get; set; }
+    public DbSet<Shipment> Shipments { get; set; }
+    public DbSet<Vendor> Vendors { get; set; }
     public DbSet<UserIdentity> UserIdentities { get; set; }
 
 
@@ -20,10 +24,30 @@ public class ApplicationDbContext : IdentityDbContext<UserIdentity>
         SeedRoles(builder);
 
         builder.Entity<Product>()
-            .HasOne(p => p.UserIdentity)
+            .HasOne(p => p.Vendor)
             .WithMany(u => u.Products)
-            .HasForeignKey(p => p.UserId)
+            .HasForeignKey(p => p.VendorId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<Product>()
+            .HasOne(p => p.Category)
+            .WithMany(u => u.Products)
+            .HasForeignKey(p => p.CategoryId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        builder.Entity<Category>()
+            .HasOne(p => p.Vendor)
+            .WithMany(u => u.Categories)
+            .HasForeignKey(p => p.VendorId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+
+        builder.Entity<UserIdentity>()
+            .HasOne(u => u.Vendor)
+            .WithMany(v => v.UserIdentities)
+            .HasForeignKey(u => u.VendorId)
+            .OnDelete(DeleteBehavior.SetNull);
+
     }
 
     private void SeedRoles(ModelBuilder builder)

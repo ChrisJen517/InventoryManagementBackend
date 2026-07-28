@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace InventoryApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260727193527_VendorImplementation")]
+    partial class VendorImplementation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -275,14 +278,14 @@ namespace InventoryApi.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "528de149-ae22-4a99-b9bd-b0d5afd2e8f6",
+                            Id = "b92a99cf-fc81-4063-a376-d368d884fabc",
                             ConcurrencyStamp = "1",
                             Name = "Admin",
                             NormalizedName = "Admin"
                         },
                         new
                         {
-                            Id = "151af3e0-f0a8-4ac8-9756-b47ec45a4177",
+                            Id = "73afdc93-a8c3-463a-aada-09da8c32c842",
                             ConcurrencyStamp = "2",
                             Name = "Vendor",
                             NormalizedName = "Vendor"
@@ -398,9 +401,8 @@ namespace InventoryApi.Migrations
             modelBuilder.Entity("InventoryApi.Areas.Identity.Data.UserIdentity", b =>
                 {
                     b.HasOne("InventoryApi.Models.Vendor", "Vendor")
-                        .WithMany("UserIdentities")
-                        .HasForeignKey("VendorId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .WithMany()
+                        .HasForeignKey("VendorId");
 
                     b.Navigation("Vendor");
                 });
@@ -510,8 +512,6 @@ namespace InventoryApi.Migrations
             modelBuilder.Entity("InventoryApi.Models.Vendor", b =>
                 {
                     b.Navigation("Products");
-
-                    b.Navigation("UserIdentities");
                 });
 #pragma warning restore 612, 618
         }

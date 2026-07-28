@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace InventoryApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260727190941_CategoryLocationShipmentFields")]
+    partial class CategoryLocationShipmentFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -76,9 +79,6 @@ namespace InventoryApi.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("varchar(256)");
 
-                    b.Property<int?>("VendorId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedEmail")
@@ -87,8 +87,6 @@ namespace InventoryApi.Migrations
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex");
-
-                    b.HasIndex("VendorId");
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
@@ -108,12 +106,7 @@ namespace InventoryApi.Migrations
                     b.Property<string>("Notes")
                         .HasColumnType("longtext");
 
-                    b.Property<int?>("VendorId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("VendorId");
 
                     b.ToTable("Categories");
                 });
@@ -141,15 +134,10 @@ namespace InventoryApi.Migrations
                     b.Property<string>("State")
                         .HasColumnType("longtext");
 
-                    b.Property<int?>("VendorId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Zip")
                         .HasColumnType("longtext");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("VendorId");
 
                     b.ToTable("Locations");
                 });
@@ -195,8 +183,8 @@ namespace InventoryApi.Migrations
                     b.Property<string>("Title")
                         .HasColumnType("longtext");
 
-                    b.Property<int?>("VendorId")
-                        .HasColumnType("int");
+                    b.Property<string>("UserId")
+                        .HasColumnType("varchar(255)");
 
                     b.HasKey("Id");
 
@@ -204,7 +192,7 @@ namespace InventoryApi.Migrations
 
                     b.HasIndex("LocationId");
 
-                    b.HasIndex("VendorId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("Products");
                 });
@@ -228,23 +216,6 @@ namespace InventoryApi.Migrations
                     b.HasIndex("ProductId");
 
                     b.ToTable("Shipments");
-                });
-
-            modelBuilder.Entity("InventoryApi.Models.Vendor", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Vendors");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -275,14 +246,14 @@ namespace InventoryApi.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "528de149-ae22-4a99-b9bd-b0d5afd2e8f6",
+                            Id = "a059b1f9-0b74-45be-a828-e18a3713619a",
                             ConcurrencyStamp = "1",
                             Name = "Admin",
                             NormalizedName = "Admin"
                         },
                         new
                         {
-                            Id = "151af3e0-f0a8-4ac8-9756-b47ec45a4177",
+                            Id = "21ab8059-8b6b-4059-a3d6-e5d2b2d38ed7",
                             ConcurrencyStamp = "2",
                             Name = "Vendor",
                             NormalizedName = "Vendor"
@@ -395,34 +366,6 @@ namespace InventoryApi.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("InventoryApi.Areas.Identity.Data.UserIdentity", b =>
-                {
-                    b.HasOne("InventoryApi.Models.Vendor", "Vendor")
-                        .WithMany("UserIdentities")
-                        .HasForeignKey("VendorId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("Vendor");
-                });
-
-            modelBuilder.Entity("InventoryApi.Models.Category", b =>
-                {
-                    b.HasOne("InventoryApi.Models.Vendor", "Vendor")
-                        .WithMany()
-                        .HasForeignKey("VendorId");
-
-                    b.Navigation("Vendor");
-                });
-
-            modelBuilder.Entity("InventoryApi.Models.Location", b =>
-                {
-                    b.HasOne("InventoryApi.Models.Vendor", "Vendor")
-                        .WithMany()
-                        .HasForeignKey("VendorId");
-
-                    b.Navigation("Vendor");
-                });
-
             modelBuilder.Entity("InventoryApi.Models.Product", b =>
                 {
                     b.HasOne("InventoryApi.Models.Category", "Category")
@@ -433,16 +376,16 @@ namespace InventoryApi.Migrations
                         .WithMany()
                         .HasForeignKey("LocationId");
 
-                    b.HasOne("InventoryApi.Models.Vendor", "Vendor")
+                    b.HasOne("InventoryApi.Areas.Identity.Data.UserIdentity", "UserIdentity")
                         .WithMany("Products")
-                        .HasForeignKey("VendorId")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Category");
 
                     b.Navigation("Location");
 
-                    b.Navigation("Vendor");
+                    b.Navigation("UserIdentity");
                 });
 
             modelBuilder.Entity("InventoryApi.Models.Shipment", b =>
@@ -507,11 +450,9 @@ namespace InventoryApi.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("InventoryApi.Models.Vendor", b =>
+            modelBuilder.Entity("InventoryApi.Areas.Identity.Data.UserIdentity", b =>
                 {
                     b.Navigation("Products");
-
-                    b.Navigation("UserIdentities");
                 });
 #pragma warning restore 612, 618
         }

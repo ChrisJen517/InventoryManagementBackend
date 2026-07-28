@@ -46,7 +46,8 @@ builder.Services.AddIdentityApiEndpoints<UserIdentity>()
 
 builder.Services.AddIdentityCore<UserIdentity>()
     .AddRoles<IdentityRole>()
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddClaimsPrincipalFactory<CustomClaimsPrincipalFactory>();
 
 
 builder.Services.ConfigureApplicationCookie(options =>

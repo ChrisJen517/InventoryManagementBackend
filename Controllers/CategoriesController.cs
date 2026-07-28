@@ -14,72 +14,63 @@ using Microsoft.AspNetCore.Identity;
 namespace InventoryApi.Controllers
 {
     [Authorize]
-    [Route("api/products")]
+    [Route("api/categories")]
     [ApiController]
-    public class ProductsController : ControllerBase
+    public class CategoriesController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
 
-        public ProductsController(ApplicationDbContext context)
+        public CategoriesController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: api/Products
+        // GET: api/Categories
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
+        public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
         {
             string? vendorIdClaim = User.FindFirstValue("VendorId");
-
             int? vendorId = int.TryParse(vendorIdClaim, out var id) ? id : 0;
 
             if (User.IsInRole("Admin"))
             {
-                return await _context.Products
-                    .Include(p => p.Category)
+                return await _context.Categories
                     .ToListAsync();
             }
 
-            return await _context.Products
-                .Include(p => p.Category)
-                .Where(product => product.VendorId == vendorId)
+            return await _context.Categories
+                .Where(category => category.VendorId == vendorId)
                 .ToListAsync();
         }
 
-        // GET: api/Products/5
+        // GET: api/Categories/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Product>> GetProduct(int id)
+        public async Task<ActionResult<Category>> GetCategory(int id)
         {
-            var product = await _context.Products.FindAsync(id);
+            var category = await _context.Categories.FindAsync(id);
 
-            if (product == null)
+            if (category == null)
             {
                 return NotFound();
             }
 
-            return product;
+            return category;
         }
 
-        // PUT: api/Products/5
+        // PUT: api/Categories/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutProduct(int id, Product productdto)
+        public async Task<IActionResult> PutCategory(int id, Category categorydto)
         {
+            var category = await _context.Categories.FindAsync(id);
 
-            var product = await _context.Products.FindAsync(id);
-
-            if (product == null)
+            if (category == null)
             {
                 return NotFound();
             }
 
-            product.Title = productdto.Title;
-            product.Sku = productdto.Sku;
-            product.CategoryId = productdto.CategoryId;
-            product.Price = productdto.Price;
-            product.Quantity = productdto.Quantity;
-            product.Description = productdto.Description;
-            product.Notes = productdto.Notes;
+            category.Name = categorydto.Name;
+            category.Notes = categorydto.Notes;
 
             try
             {
@@ -87,7 +78,7 @@ namespace InventoryApi.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!ProductExists(id))
+                if (!CategoryExists(id))
                 {
                     return NotFound();
                 }
@@ -100,41 +91,41 @@ namespace InventoryApi.Controllers
             return NoContent();
         }
 
-        // POST: api/Products
+        // POST: api/Categories
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Product>> PostProduct(Product product)
+        public async Task<ActionResult<Category>> PostCategory(Category category)
         {
             string? vendorIdClaim = User.FindFirstValue("VendorId");
             int? vendorId = int.TryParse(vendorIdClaim, out var id) ? id : 0;
 
-            product.VendorId = vendorId;
+            category.VendorId = vendorId;
 
-            _context.Products.Add(product);
+            _context.Categories.Add(category);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetProduct), new { id = product.Id }, product);
+            return CreatedAtAction(nameof(GetCategory), new { id = category.Id }, category);
         }
 
-        // DELETE: api/Products/5
+        // DELETE: api/Categories/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteProduct(int id)
+        public async Task<IActionResult> DeleteCategory(int id)
         {
-            var product = await _context.Products.FindAsync(id);
-            if (product == null)
+            var category = await _context.Categories.FindAsync(id);
+            if (category == null)
             {
                 return NotFound();
             }
 
-            _context.Products.Remove(product);
+            _context.Categories.Remove(category);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool ProductExists(int id)
+        private bool CategoryExists(int id)
         {
-            return _context.Products.Any(e => e.Id == id);
+            return _context.Categories.Any(e => e.Id == id);
         }
     }
 }
