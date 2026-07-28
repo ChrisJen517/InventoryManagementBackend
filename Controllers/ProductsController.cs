@@ -40,17 +40,24 @@ namespace InventoryApi.Controllers
 
             var filteredProducts = _context.Products.AsQueryable();
 
-            if (!User.IsInRole("Admin"))
-            {
-                filteredProducts = filteredProducts.Where(p => p.VendorId == vendorId);
-            }
-
             if (!string.IsNullOrEmpty(search))
             {
                 string cleanSearch = search.Trim().ToLower();
                 filteredProducts = filteredProducts.Where(p => p.Category.Name.ToLower().Contains(cleanSearch) ||
                                                                 p.Title.ToLower().Contains(cleanSearch));
             }
+
+            if (!User.IsInRole("Admin"))
+            {
+                filteredProducts = filteredProducts
+                    .Where(p => p.VendorId == vendorId);
+            }
+            else
+            {
+                filteredProducts = filteredProducts
+                    .Include(p => p.Vendor);
+            }
+
             return await filteredProducts.Include(p => p.Category).ToListAsync();
         }
 

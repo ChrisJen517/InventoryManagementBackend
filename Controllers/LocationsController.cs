@@ -37,6 +37,11 @@ namespace InventoryApi.Controllers
                 filteredLocations = filteredLocations.Where(v => v.Name.ToLower().Contains(cleanSearch));
             }
 
+            if (User.IsInRole("Admin"))
+            {
+                filteredLocations = filteredLocations.Include(p => p.Vendor);
+            }
+
             return await filteredLocations.ToListAsync();
         }
 

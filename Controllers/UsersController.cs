@@ -28,7 +28,7 @@ namespace InventoryApi.Controllers
                 filteredUsers = filteredUsers.Where(u => u.Name.ToLower().Contains(cleanSearch) ||
                                                                 u.Email.ToLower().Contains(cleanSearch));
             }
-            return await filteredUsers.ToListAsync();
+            return await filteredUsers.Include(u => u.Vendor).ToListAsync();
         }
 
         [HttpGet("{id}")]
