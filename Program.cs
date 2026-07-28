@@ -25,7 +25,8 @@ builder.Services.AddCors(options =>
                       policy =>
                       {
                           policy.WithOrigins("http://localhost:5173",
-                                              "https://localhost:7213")
+                                              "https://localhost:7213",
+                                              "https://inventory-management-three-dun-22.vercel.app")
                                               .AllowAnyHeader()
                                               .AllowAnyMethod()
                                               .AllowCredentials();

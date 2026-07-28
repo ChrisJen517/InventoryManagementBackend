@@ -48,4 +48,6 @@ public class Product
 
     // [JsonIgnore]
     public ICollection<Shipment> Shipments { get; set; } = new List<Shipment>();
+    // testinventorymanagement-database
+    // f$t6KEhyw$loGl1V
 }
