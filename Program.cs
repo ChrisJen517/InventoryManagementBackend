@@ -32,7 +32,11 @@ if (!builder.Environment.IsDevelopment())
     connectionString = builder.Configuration.GetConnectionString("MyDbConnection");
     if (string.IsNullOrEmpty(connectionString))
     {
-        throw new InvalidOperationException("Connection string 'AZURE_MYSQL_CONNECTIONSTRING' not found.");
+        connectionString = Environment.GetEnvironmentVariable("MYSQLCONNSTR_MyDbConnection"); ;
+        if (string.IsNullOrEmpty(connectionString))
+        {
+            throw new InvalidOperationException("Connection string 'AZURE_MYSQL_CONNECTIONSTRING' not found.");
+        }
     }
 }
 
