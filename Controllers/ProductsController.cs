@@ -25,25 +25,33 @@ namespace InventoryApi.Controllers
             _context = context;
         }
 
+        public class ProductSearchParameters
+        {
+            public string? Title { get; set; }
+        }
+
         // GET: api/Products
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
+        public async Task<ActionResult<IEnumerable<Product>>> GetProducts([FromQuery] string? search)
         {
             string? vendorIdClaim = User.FindFirstValue("VendorId");
 
             int? vendorId = int.TryParse(vendorIdClaim, out var id) ? id : 0;
 
-            if (User.IsInRole("Admin"))
+            var filteredProducts = _context.Products.AsQueryable();
+
+            if (!User.IsInRole("Admin"))
             {
-                return await _context.Products
-                    .Include(p => p.Category)
-                    .ToListAsync();
+                filteredProducts = filteredProducts.Where(p => p.VendorId == vendorId);
             }
 
-            return await _context.Products
-                .Include(p => p.Category)
-                .Where(product => product.VendorId == vendorId)
-                .ToListAsync();
+            if (!string.IsNullOrEmpty(search))
+            {
+                string cleanSearch = search.Trim().ToLower();
+                filteredProducts = filteredProducts.Where(p => p.Category.Name.ToLower().Contains(cleanSearch) ||
+                                                                p.Title.ToLower().Contains(cleanSearch));
+            }
+            return await filteredProducts.Include(p => p.Category).ToListAsync();
         }
 
         // GET: api/Products/5

@@ -27,20 +27,25 @@ namespace InventoryApi.Controllers
 
         // GET: api/Categories
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
+        public async Task<ActionResult<IEnumerable<Category>>> GetCategories([FromQuery] string? search)
         {
             string? vendorIdClaim = User.FindFirstValue("VendorId");
             int? vendorId = int.TryParse(vendorIdClaim, out var id) ? id : 0;
 
-            if (User.IsInRole("Admin"))
+            var filteredCategories = _context.Categories.AsQueryable();
+
+            if (!User.IsInRole("Admin"))
             {
-                return await _context.Categories
-                    .ToListAsync();
+                filteredCategories = filteredCategories.Where(c => c.VendorId == vendorId);
             }
 
-            return await _context.Categories
-                .Where(category => category.VendorId == vendorId)
-                .ToListAsync();
+            if (!string.IsNullOrEmpty(search))
+            {
+                string cleanSearch = search.Trim().ToLower();
+                filteredCategories = filteredCategories.Where(c => c.Name.ToLower().Contains(cleanSearch));
+            }
+
+            return await filteredCategories.ToListAsync();
         }
 
         // GET: api/Categories/5
